@@ -11,7 +11,7 @@ public class OrderService {
         return OrderVO.OrderVOBuilder()
                 .id(123)
                 .uuid("uuid1")
-                .currency("BTC/KRW".equals(marketCode) ? 123 : 234)
+                .currency(getCurrencyCode(marketCode))
                 .user(456)
                 .side(side)
                 .type(orderType)
@@ -23,5 +23,9 @@ public class OrderService {
                 .remainingVolume(100)
                 .tradeCount(0)
                 .build();
+    }
+
+    private int getCurrencyCode(String marketCode) {
+        return "BTC/KRW".equals(marketCode) ? 123 : 234;
     }
 }
