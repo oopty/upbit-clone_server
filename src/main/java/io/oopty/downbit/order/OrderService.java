@@ -11,7 +11,7 @@ public class OrderService {
         return OrderVO.OrderVOBuilder()
                 .id(123)
                 .uuid("uuid1")
-                .currency(123)
+                .currency("BTC/KRW".equals(marketCode) ? 123 : 234)
                 .user(456)
                 .side(side)
                 .type(orderType)
