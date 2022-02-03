@@ -1,5 +1,6 @@
 package io.oopty.downbit.order;
 
+import io.oopty.downbit.order.constant.OrderStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -15,12 +16,12 @@ public class OrderService {
                 .user(456)
                 .side(side)
                 .type(orderType)
-                .avgPrice(100)
-                .state("opened")
+                .avgPrice(price)
+                .state(OrderStatus.OPENED.getValue())
                 .dateTime(LocalDateTime.now())
                 .volume(volume)
                 .executedVolume(0)
-                .remainingVolume(100)
+                .remainingVolume(volume)
                 .tradeCount(0)
                 .build();
     }
