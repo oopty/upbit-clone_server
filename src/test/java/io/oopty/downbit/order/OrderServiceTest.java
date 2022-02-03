@@ -58,6 +58,12 @@ class OrderServiceTest {
             OrderVO result = orderService.order("BTC/KRW", BID, PRICE, 0,  200);
             assertThat(result.getRemainingVolume(), closeTo(200, 0.00001));
         }
+
+        @Test
+        void verifyThatResultHasCorrectSide() {
+            OrderVO result = orderService.order("BTC/KRW", ASK, PRICE, 0, 200);
+            assertThat(result.getSide(), is(ASK));
+        }
     }
     
     @Nested 
