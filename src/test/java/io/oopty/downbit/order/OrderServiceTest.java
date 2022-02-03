@@ -59,6 +59,23 @@ class OrderServiceTest {
             assertThat(result.getRemainingVolume(), closeTo(100, 0.00001));
             assertThat(result.getTradeCount(), is(0));
         }
+
+        @Test
+        void whenSubmitMarketOrderForETHCreateAndReceiveCorrectVolumeOfOrderInfo() {
+            OrderVO result = orderService.order("ETH/KRW", BID, PRICE, 0,  200);
+
+            assertThat(result.getCurrency(), is(ETH_CURRENCY_ID));
+            assertThat(result.getUser(), is(USER_ID));
+            assertThat(result.getSide(), is(BID));
+            assertThat(result.getType(), is(PRICE));
+            assertThat(result.getAvgPrice(), closeTo(100, 0.00001));
+            assertThat(result.getState(), is(OPENED));
+            assertThat(result.getDateTime(), any(LocalDateTime.class));
+            assertThat(result.getVolume(), closeTo(200, 0.00001));
+            assertThat(result.getExecutedVolume(), closeTo(0, 0.00001));
+            assertThat(result.getRemainingVolume(), closeTo(100, 0.00001));
+            assertThat(result.getTradeCount(), is(0));
+        }
     }
     
     @Nested 
