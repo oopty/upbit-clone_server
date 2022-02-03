@@ -18,7 +18,7 @@ public class OrderService {
                 .avgPrice(100)
                 .state("opened")
                 .dateTime(LocalDateTime.now())
-                .volume(100)
+                .volume(volume)
                 .executedVolume(0)
                 .remainingVolume(100)
                 .tradeCount(0)
