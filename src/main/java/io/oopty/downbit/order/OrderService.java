@@ -16,7 +16,7 @@ public class OrderService {
                 .user(456)
                 .side(side)
                 .type(orderType)
-                .avgPrice(price)
+                .price(price)
                 .state(OrderStatus.OPENED.getValue())
                 .dateTime(LocalDateTime.now())
                 .volume(volume)
@@ -27,6 +27,13 @@ public class OrderService {
     }
 
     private int getCurrencyCode(String marketCode) {
-        return "BTC/KRW".equals(marketCode) ? 123 : 234;
+        switch (marketCode) {
+            case "BTC/KRW":
+                return 123;
+            case "ETH/KRW":
+                return 234;
+            default:
+                return -1;
+        }
     }
 }

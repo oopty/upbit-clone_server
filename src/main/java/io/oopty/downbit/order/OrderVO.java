@@ -15,7 +15,7 @@ public class OrderVO {
     int user;
     String side;
     String type;
-    double avgPrice;
+    double price;
     String state;
     LocalDateTime dateTime;
     double volume;
