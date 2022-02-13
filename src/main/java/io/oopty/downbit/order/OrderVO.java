@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @Getter
 public class OrderVO {
     int id;
-    String uuid;
     int currency;
     int user;
     String side;
@@ -21,5 +20,4 @@ public class OrderVO {
     double volume;
     double executedVolume;
     double remainingVolume;
-    int tradeCount;
 }
