@@ -1,19 +1,26 @@
 package io.oopty.downbit.order;
 
 import io.oopty.downbit.order.constant.OrderStatus;
+import io.oopty.downbit.order.repository.OrderDao;
+import io.oopty.downbit.order.repository.OrderRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
 @Service
 public class OrderService {
+    OrderRepository orderRepository;
 
-    public OrderVO order(String marketCode, String side, String orderType, double price, double volume) {
-        return OrderVO.OrderVOBuilder()
-                .id(123)
-                .uuid("uuid1")
-                .currency(getCurrencyCode(marketCode))
-                .user(456)
+    public OrderService(OrderRepository orderRepository) {
+        this.orderRepository = orderRepository;
+    }
+
+    public OrderVO order(int currencyId, String side, String orderType, double price, double volume, int userId) {
+        OrderVO order = OrderVO.OrderVOBuilder()
+                .id(-1)
+                .currency(currencyId)
+                .user(userId)
                 .side(side)
                 .type(orderType)
                 .price(price)
@@ -22,15 +29,20 @@ public class OrderService {
                 .volume(volume)
                 .executedVolume(0)
                 .remainingVolume(volume)
-                .tradeCount(0)
                 .build();
+
+        OrderDao orderDao = new OrderDao();
+        BeanUtils.copyProperties(order, orderDao);
+        orderRepository.save(orderDao);
+
+        return order;
     }
 
     private int getCurrencyCode(String marketCode) {
         switch (marketCode) {
-            case "BTC/KRW":
+            case "KRW-BTC":
                 return 123;
-            case "ETH/KRW":
+            case "KRW-ETH":
                 return 234;
             default:
                 return -1;
