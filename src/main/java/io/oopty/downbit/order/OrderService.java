@@ -3,7 +3,7 @@ package io.oopty.downbit.order;
 import io.oopty.downbit.order.constant.OrderSide;
 import io.oopty.downbit.order.constant.OrderStatus;
 import io.oopty.downbit.order.constant.OrderType;
-import io.oopty.downbit.order.repository.OrderDao;
+import io.oopty.downbit.order.exception.InsufficientMaker;
 import io.oopty.downbit.order.repository.OrderRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ public class OrderService {
     @Transactional
     public OrderVO order(int currencyId, String side, String orderType, double price, double volume, int userId) {
         OrderVO result = OrderVO.OrderVOBuilder().build();
-        OrderDao orderDao = OrderDao.builder()
+        Order orderDao = Order.builder()
                 .currency(currencyId)
                 .user(userId)
                 .side(side)
@@ -37,14 +37,14 @@ public class OrderService {
                 .remainingVolume(volume)
                 .build();
         if (orderType.equals(OrderType.MARKET.getType())) {
-            List<OrderDao> orderDaos = orderRepository.findByTypeAndSideInStateOrderByPriceAscAndCreatedAtDesc(
+            List<Order> orders = orderRepository.findByTypeAndSideInStateOrderByPriceAscAndCreatedAtDesc(
                     OrderType.LIMIT.getType(),
-                    OrderSide.ASK.getSide(),
+                    side.equals(OrderSide.BID.getSide()) ? OrderSide.ASK.getSide() : OrderSide.BID.getSide(),
                     List.of(OrderStatus.OPENED.getValue(),
                             OrderStatus.PROCESSING.getValue())
             );
 
-            for (OrderDao order : orderDaos) {
+            for (Order order : orders) {
                 if(orderDao.getRemainingVolume() == 0) break;
                 double min = Math.min(order.getRemainingVolume(), orderDao.getRemainingVolume());
                 order.setExecutedVolume(order.getExecutedVolume() + min);
@@ -55,7 +55,7 @@ public class OrderService {
                 orderRepository.save(order);
             }
             if(orderDao.getRemainingVolume() != 0) {
-                throw new InvalidParameterException();
+                throw new InsufficientMaker();
             }
         }
 

@@ -3,7 +3,7 @@ package io.oopty.downbit.order;
 import io.oopty.downbit.order.constant.OrderSide;
 import io.oopty.downbit.order.constant.OrderStatus;
 import io.oopty.downbit.order.constant.OrderType;
-import io.oopty.downbit.order.repository.OrderDao;
+import io.oopty.downbit.order.exception.InsufficientMaker;
 import io.oopty.downbit.order.repository.OrderRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,7 +16,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.security.InvalidParameterException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -38,7 +37,7 @@ class OrderServiceTest {
     private OrderRepository mockOrderRepository;
     
     @Captor
-    private ArgumentCaptor<OrderDao> orderDaoCaptor;
+    private ArgumentCaptor<Order> orderDaoCaptor;
 
     @DisplayName("when submitted order is market order")
     @Nested
@@ -47,13 +46,13 @@ class OrderServiceTest {
         @Nested
         class TradeSideIsBidTest {
 
-            private OrderDao orderDao1;
-            private OrderDao orderDao2;
-            private OrderDao orderDao3;
+            private Order order1;
+            private Order order2;
+            private Order order3;
 
             @BeforeEach
             void setUp() {
-                orderDao1 = OrderDao.builder()
+                order1 = Order.builder()
                         .id(123L)
                         .currency(234)
                         .user(456)
@@ -67,7 +66,7 @@ class OrderServiceTest {
                         .remainingVolume(200)
                         .build();
 
-                orderDao2 = OrderDao.builder()
+                order2 = Order.builder()
                         .id(234L)
                         .currency(234)
                         .user(456)
@@ -81,7 +80,7 @@ class OrderServiceTest {
                         .remainingVolume(200)
                         .build();
 
-                orderDao3 = OrderDao.builder()
+                order3 = Order.builder()
                         .id(345L)
                         .currency(234)
                         .user(456)
@@ -103,23 +102,23 @@ class OrderServiceTest {
                         OrderType.LIMIT.getType(),
                         OrderSide.ASK.getSide(),
                         List.of(OrderStatus.OPENED.getValue(), OrderStatus.PROCESSING.getValue())))
-                        .thenReturn(List.of(orderDao1, orderDao2, orderDao3));
+                        .thenReturn(List.of(order1, order2, order3));
 
                 subject.order(234, OrderSide.BID.getSide(), OrderType.MARKET.getType(), 0, 100, 456);
 
                 verify(mockOrderRepository, times(2)).save(orderDaoCaptor.capture());
-                List<OrderDao> allValues = orderDaoCaptor.getAllValues();
+                List<Order> allValues = orderDaoCaptor.getAllValues();
 
-                OrderDao orderDaoResult1 = allValues.get(0);
-                OrderDao orderDaoResult2 = allValues.get(1);
+                Order orderResult1 = allValues.get(0);
+                Order orderResult2 = allValues.get(1);
 
-                assertThat(orderDaoResult1.getId(), is(123L));
-                assertThat(orderDaoResult1.getExecutedVolume(), closeTo(100, 0.00001));
-                assertThat(orderDaoResult1.getRemainingVolume(), closeTo(100, 0.00001));
+                assertThat(orderResult1.getId(), is(123L));
+                assertThat(orderResult1.getExecutedVolume(), closeTo(100, 0.00001));
+                assertThat(orderResult1.getRemainingVolume(), closeTo(100, 0.00001));
 
-                assertThat(orderDaoResult2.getId(), is(nullValue()));
-                assertThat(orderDaoResult2.getExecutedVolume(), closeTo(100, 0.00001));
-                assertThat(orderDaoResult2.getRemainingVolume(), closeTo(0, 0.00001));
+                assertThat(orderResult2.getId(), is(nullValue()));
+                assertThat(orderResult2.getExecutedVolume(), closeTo(100, 0.00001));
+                assertThat(orderResult2.getRemainingVolume(), closeTo(0, 0.00001));
             }
 
             @DisplayName("should trade with limit order")
@@ -129,28 +128,28 @@ class OrderServiceTest {
                         OrderType.LIMIT.getType(),
                         OrderSide.ASK.getSide(),
                         List.of(OrderStatus.OPENED.getValue(), OrderStatus.PROCESSING.getValue())))
-                        .thenReturn(List.of(orderDao1, orderDao2, orderDao3));
+                        .thenReturn(List.of(order1, order2, order3));
 
                 subject.order(234, OrderSide.BID.getSide(), OrderType.MARKET.getType(), 0, 300, 456);
 
                 verify(mockOrderRepository, times(3)).save(orderDaoCaptor.capture());
-                List<OrderDao> allValues = orderDaoCaptor.getAllValues();
+                List<Order> allValues = orderDaoCaptor.getAllValues();
 
-                OrderDao orderDaoResult1 = allValues.get(0);
-                OrderDao orderDaoResult2 = allValues.get(1);
-                OrderDao orderDaoResult3 = allValues.get(2);
+                Order orderResult1 = allValues.get(0);
+                Order orderResult2 = allValues.get(1);
+                Order orderResult3 = allValues.get(2);
 
-                assertThat(orderDaoResult1.getId(), is(123L));
-                assertThat(orderDaoResult1.getExecutedVolume(), closeTo(200, 0.00001));
-                assertThat(orderDaoResult1.getRemainingVolume(), closeTo(0, 0.00001));
+                assertThat(orderResult1.getId(), is(123L));
+                assertThat(orderResult1.getExecutedVolume(), closeTo(200, 0.00001));
+                assertThat(orderResult1.getRemainingVolume(), closeTo(0, 0.00001));
 
-                assertThat(orderDaoResult2.getId(), is(234L));
-                assertThat(orderDaoResult2.getExecutedVolume(), closeTo(100, 0.00001));
-                assertThat(orderDaoResult2.getRemainingVolume(), closeTo(100, 0.00001));
+                assertThat(orderResult2.getId(), is(234L));
+                assertThat(orderResult2.getExecutedVolume(), closeTo(100, 0.00001));
+                assertThat(orderResult2.getRemainingVolume(), closeTo(100, 0.00001));
 
-                assertThat(orderDaoResult3.getId(), is(nullValue()));
-                assertThat(orderDaoResult3.getExecutedVolume(), closeTo(300, 0.00001));
-                assertThat(orderDaoResult3.getRemainingVolume(), closeTo(0, 0.00001));
+                assertThat(orderResult3.getId(), is(nullValue()));
+                assertThat(orderResult3.getExecutedVolume(), closeTo(300, 0.00001));
+                assertThat(orderResult3.getRemainingVolume(), closeTo(0, 0.00001));
             }
 
             @DisplayName("when there are not enough maker, should make error")
@@ -160,11 +159,138 @@ class OrderServiceTest {
                         OrderType.LIMIT.getType(),
                         OrderSide.ASK.getSide(),
                         List.of(OrderStatus.OPENED.getValue(), OrderStatus.PROCESSING.getValue())))
-                        .thenReturn(List.of(orderDao1, orderDao2, orderDao3));
+                        .thenReturn(List.of(order1, order2, order3));
 
 
-                assertThrows(InvalidParameterException.class, () -> {
+                assertThrows(InsufficientMaker.class, () -> {
                     subject.order(234, OrderSide.BID.getSide(), OrderType.MARKET.getType(), 0, 601, 456);
+                });
+            }
+        }
+
+        @DisplayName("if trade side is ask")
+        @Nested
+        class TradeSideIsAskTest {
+
+
+            private Order order1;
+            private Order order2;
+            private Order order3;
+
+            @BeforeEach
+            void setUp() {
+                order1 = Order.builder()
+                        .id(123L)
+                        .currency(234)
+                        .user(456)
+                        .side(OrderSide.BID.getSide())
+                        .type(OrderType.LIMIT.getType())
+                        .price(456)
+                        .state(OrderStatus.OPENED.getValue())
+                        .createdAt(LocalDateTime.of(2022, 3, 20, 14, 19, 0))
+                        .volume(200)
+                        .executedVolume(0)
+                        .remainingVolume(200)
+                        .build();
+
+                order2 = Order.builder()
+                        .id(234L)
+                        .currency(234)
+                        .user(456)
+                        .side(OrderSide.BID.getSide())
+                        .type(OrderType.LIMIT.getType())
+                        .price(345)
+                        .state(OrderStatus.PROCESSING.getValue())
+                        .createdAt(LocalDateTime.of(2022, 3, 20, 14, 19, 0))
+                        .volume(200)
+                        .executedVolume(0)
+                        .remainingVolume(200)
+                        .build();
+
+                order3 = Order.builder()
+                        .id(345L)
+                        .currency(234)
+                        .user(456)
+                        .side(OrderSide.BID.getSide())
+                        .type(OrderType.LIMIT.getType())
+                        .price(234)
+                        .state(OrderStatus.OPENED.getValue())
+                        .createdAt(LocalDateTime.of(2022, 3, 20, 14, 19, 0))
+                        .volume(200)
+                        .executedVolume(0)
+                        .remainingVolume(200)
+                        .build();
+            }
+
+            @DisplayName("should trade with limit order")
+            @Test
+            void shouldTradeWithLimitOrder1() {
+                when(mockOrderRepository.findByTypeAndSideInStateOrderByPriceAscAndCreatedAtDesc(
+                        OrderType.LIMIT.getType(),
+                        OrderSide.BID.getSide(),
+                        List.of(OrderStatus.OPENED.getValue(), OrderStatus.PROCESSING.getValue())))
+                        .thenReturn(List.of(order1, order2, order3));
+
+                subject.order(234, OrderSide.ASK.getSide(), OrderType.MARKET.getType(), 0, 100, 456);
+
+                verify(mockOrderRepository, times(2)).save(orderDaoCaptor.capture());
+                List<Order> allValues = orderDaoCaptor.getAllValues();
+
+                Order orderResult1 = allValues.get(0);
+                Order orderResult2 = allValues.get(1);
+
+                assertThat(orderResult1.getId(), is(123L));
+                assertThat(orderResult1.getExecutedVolume(), closeTo(100, 0.00001));
+                assertThat(orderResult1.getRemainingVolume(), closeTo(100, 0.00001));
+
+                assertThat(orderResult2.getId(), is(nullValue()));
+                assertThat(orderResult2.getExecutedVolume(), closeTo(100, 0.00001));
+                assertThat(orderResult2.getRemainingVolume(), closeTo(0, 0.00001));
+            }
+
+            @DisplayName("should trade with limit order")
+            @Test
+            void shouldTradeWithLimitOrder2() {
+                when(mockOrderRepository.findByTypeAndSideInStateOrderByPriceAscAndCreatedAtDesc(
+                        OrderType.LIMIT.getType(),
+                        OrderSide.BID.getSide(),
+                        List.of(OrderStatus.OPENED.getValue(), OrderStatus.PROCESSING.getValue())))
+                        .thenReturn(List.of(order1, order2, order3));
+
+                subject.order(234, OrderSide.ASK.getSide(), OrderType.MARKET.getType(), 0, 300, 456);
+
+                verify(mockOrderRepository, times(3)).save(orderDaoCaptor.capture());
+                List<Order> allValues = orderDaoCaptor.getAllValues();
+
+                Order orderResult1 = allValues.get(0);
+                Order orderResult2 = allValues.get(1);
+                Order orderResult3 = allValues.get(2);
+
+                assertThat(orderResult1.getId(), is(123L));
+                assertThat(orderResult1.getExecutedVolume(), closeTo(200, 0.00001));
+                assertThat(orderResult1.getRemainingVolume(), closeTo(0, 0.00001));
+
+                assertThat(orderResult2.getId(), is(234L));
+                assertThat(orderResult2.getExecutedVolume(), closeTo(100, 0.00001));
+                assertThat(orderResult2.getRemainingVolume(), closeTo(100, 0.00001));
+
+                assertThat(orderResult3.getId(), is(nullValue()));
+                assertThat(orderResult3.getExecutedVolume(), closeTo(300, 0.00001));
+                assertThat(orderResult3.getRemainingVolume(), closeTo(0, 0.00001));
+            }
+
+            @DisplayName("when there are not enough maker, should make error")
+            @Test
+            void whenThereAreNotEnoughMakerShouldMakeError() {
+                when(mockOrderRepository.findByTypeAndSideInStateOrderByPriceAscAndCreatedAtDesc(
+                        OrderType.LIMIT.getType(),
+                        OrderSide.BID.getSide(),
+                        List.of(OrderStatus.OPENED.getValue(), OrderStatus.PROCESSING.getValue())))
+                        .thenReturn(List.of(order1, order2, order3));
+
+
+                assertThrows(InsufficientMaker.class, () -> {
+                    subject.order(234, OrderSide.ASK.getSide(), OrderType.MARKET.getType(), 0, 601, 456);
                 });
             }
         }
@@ -238,7 +364,7 @@ class OrderServiceTest {
 
             verify(mockOrderRepository).save(orderDaoCaptor.capture());
 
-            OrderDao value = orderDaoCaptor.getValue();
+            Order value = orderDaoCaptor.getValue();
 
             assertThat(value.getExecutedVolume(), closeTo(0, 0.00001));
         }
