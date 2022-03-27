@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
+
 @RestController("/api/v1/orders")
 public class OrderController {
     private final OrderService orderService;
@@ -20,16 +22,18 @@ public class OrderController {
     }
 
     @PostMapping
-    public OrderResponse order(@RequestBody OrderRequest orderRequest) {
+    public OrderResponse order(HttpServletRequest httpServletRequest, @RequestBody OrderRequest orderRequest) {
         CurrencyVO currencyByCode = currencyService.getCurrencyByCode(orderRequest.getMarketCode());
 
+        int userId = (int) httpServletRequest.getSession().getAttribute("userId");
         OrderVO orderVO = orderService.order(currencyByCode.getId(),
                     orderRequest.getSide(),
                     orderRequest.getOrderType(),
                     orderRequest.getPrice(),
-                    orderRequest.getVolume(), 789);
+                    orderRequest.getVolume(),
+                    userId);
 
-        OrderResponse orderResponse = new OrderResponse();
+        OrderResponse orderResponse = OrderResponse.OrderResponseBuilder().build();
         BeanUtils.copyProperties(orderVO, orderResponse);
         return orderResponse;
     }

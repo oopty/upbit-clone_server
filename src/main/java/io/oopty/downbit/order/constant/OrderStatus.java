@@ -1,7 +1,7 @@
 package io.oopty.downbit.order.constant;
 
 public enum OrderStatus {
-    OPENED("opened");
+    OPENED("opened"), PROCESSING("processing"), CLOSED("closed");
     private final String value;
 
     public String getValue() {

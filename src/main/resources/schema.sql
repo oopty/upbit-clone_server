@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `order` (
                          `user` int,
                          `side` varchar(255),
                          `type` varchar(255),
-                         `avg_price` double,
+                         `price` double,
                          `state` varchar(255),
                          `created_at` datetime,
                          `volume` double,

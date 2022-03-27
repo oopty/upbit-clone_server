@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @ToString
 @Getter
+@Setter
 public class OrderVO {
     int id;
     int currency;
@@ -16,7 +17,7 @@ public class OrderVO {
     String type;
     double price;
     String state;
-    LocalDateTime dateTime;
+    LocalDateTime createdAt;
     double volume;
     double executedVolume;
     double remainingVolume;

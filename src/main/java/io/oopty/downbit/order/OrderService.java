@@ -1,12 +1,17 @@
 package io.oopty.downbit.order;
 
+import io.oopty.downbit.order.constant.OrderSide;
 import io.oopty.downbit.order.constant.OrderStatus;
+import io.oopty.downbit.order.constant.OrderType;
 import io.oopty.downbit.order.repository.OrderDao;
 import io.oopty.downbit.order.repository.OrderRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+import java.security.InvalidParameterException;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class OrderService {
@@ -16,36 +21,46 @@ public class OrderService {
         this.orderRepository = orderRepository;
     }
 
+    @Transactional
     public OrderVO order(int currencyId, String side, String orderType, double price, double volume, int userId) {
-        OrderVO order = OrderVO.OrderVOBuilder()
-                .id(-1)
+        OrderVO result = OrderVO.OrderVOBuilder().build();
+        OrderDao orderDao = OrderDao.builder()
                 .currency(currencyId)
                 .user(userId)
                 .side(side)
                 .type(orderType)
                 .price(price)
                 .state(OrderStatus.OPENED.getValue())
-                .dateTime(LocalDateTime.now())
+                .createdAt(LocalDateTime.now())
                 .volume(volume)
                 .executedVolume(0)
                 .remainingVolume(volume)
                 .build();
+        if (orderType.equals(OrderType.MARKET.getType())) {
+            List<OrderDao> orderDaos = orderRepository.findByTypeAndSideInStateOrderByPriceAscAndCreatedAtDesc(
+                    OrderType.LIMIT.getType(),
+                    OrderSide.ASK.getSide(),
+                    List.of(OrderStatus.OPENED.getValue(),
+                            OrderStatus.PROCESSING.getValue())
+            );
 
-        OrderDao orderDao = new OrderDao();
-        BeanUtils.copyProperties(order, orderDao);
-        orderRepository.save(orderDao);
+            for (OrderDao order : orderDaos) {
+                if(orderDao.getRemainingVolume() == 0) break;
+                double min = Math.min(order.getRemainingVolume(), orderDao.getRemainingVolume());
+                order.setExecutedVolume(order.getExecutedVolume() + min);
+                order.setRemainingVolume(order.getRemainingVolume() - min);
+                orderDao.setExecutedVolume(orderDao.getExecutedVolume() + min);
+                orderDao.setRemainingVolume(orderDao.getRemainingVolume() - min);
 
-        return order;
-    }
-
-    private int getCurrencyCode(String marketCode) {
-        switch (marketCode) {
-            case "KRW-BTC":
-                return 123;
-            case "KRW-ETH":
-                return 234;
-            default:
-                return -1;
+                orderRepository.save(order);
+            }
+            if(orderDao.getRemainingVolume() != 0) {
+                throw new InvalidParameterException();
+            }
         }
+
+        orderRepository.save(orderDao);
+        BeanUtils.copyProperties(orderDao, result);
+        return result;
     }
 }

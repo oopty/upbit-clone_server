@@ -1,6 +1,9 @@
 package io.oopty.downbit.order.repository;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -8,6 +11,9 @@ import java.time.LocalDateTime;
 @Entity
 @Table(schema = "order")
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class OrderDao {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,10 +22,10 @@ public class OrderDao {
     int user;
     String side;
     String type;
-    double avg_price;
+    double price;
     String state;
-    LocalDateTime created_at;
+    LocalDateTime createdAt;
     double volume;
-    double executed_volume;
-    double remaining_volume;
+    double executedVolume;
+    double remainingVolume;
 }
