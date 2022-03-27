@@ -1,7 +1,7 @@
 package io.oopty.downbit.order.controller;
 
 import io.oopty.downbit.currency.CurrencyVO;
-import io.oopty.downbit.currency.service.CurrencyService;
+import io.oopty.downbit.currency.CurrencyService;
 import io.oopty.downbit.order.OrderService;
 import io.oopty.downbit.order.OrderVO;
 import org.springframework.beans.BeanUtils;

@@ -26,7 +26,7 @@
  - 이용 가능 자산은 출금/매매 등 다양한 서비스를 이용할 때 사용할 수 있는 자산을 의미한다.
  - 이용 불가능 자산은 현재 특정 서비스를 이용하는데 사용중이어서 다른 서비스로 사용하지 못하는 자산을 의미한다.
 
-**/api/v1/markets/:marketCode**
+**/api/v1/balances/:marketCode**
 
 Request Format  
 
