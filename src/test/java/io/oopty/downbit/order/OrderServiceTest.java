@@ -54,8 +54,6 @@ class OrderServiceTest {
             void setUp() {
                 order1 = Order.builder()
                         .id(123L)
-                        .currency(234)
-                        .user(456)
                         .side(OrderSide.ASK.getSide())
                         .type(OrderType.LIMIT.getType())
                         .price(123)
@@ -68,8 +66,6 @@ class OrderServiceTest {
 
                 order2 = Order.builder()
                         .id(234L)
-                        .currency(234)
-                        .user(456)
                         .side(OrderSide.ASK.getSide())
                         .type(OrderType.LIMIT.getType())
                         .price(234)
@@ -82,8 +78,6 @@ class OrderServiceTest {
 
                 order3 = Order.builder()
                         .id(345L)
-                        .currency(234)
-                        .user(456)
                         .side(OrderSide.ASK.getSide())
                         .type(OrderType.LIMIT.getType())
                         .price(456)
@@ -98,7 +92,7 @@ class OrderServiceTest {
             @DisplayName("should trade with limit order")
             @Test
             void shouldTradeWithLimitOrder1() {
-                when(mockOrderRepository.findByTypeAndSideInStateOrderByPriceAscAndCreatedAtDesc(
+                when(mockOrderRepository.findByTypeAndSideAndStateInOrderByPriceAscCreatedAtDesc(
                         OrderType.LIMIT.getType(),
                         OrderSide.ASK.getSide(),
                         List.of(OrderStatus.OPENED.getValue(), OrderStatus.PROCESSING.getValue())))
@@ -124,7 +118,7 @@ class OrderServiceTest {
             @DisplayName("should trade with limit order")
             @Test
             void shouldTradeWithLimitOrder2() {
-                when(mockOrderRepository.findByTypeAndSideInStateOrderByPriceAscAndCreatedAtDesc(
+                when(mockOrderRepository.findByTypeAndSideAndStateInOrderByPriceAscCreatedAtDesc(
                         OrderType.LIMIT.getType(),
                         OrderSide.ASK.getSide(),
                         List.of(OrderStatus.OPENED.getValue(), OrderStatus.PROCESSING.getValue())))
@@ -155,16 +149,14 @@ class OrderServiceTest {
             @DisplayName("when there are not enough maker, should make error")
             @Test
             void whenThereAreNotEnoughMakerShouldMakeError() {
-                when(mockOrderRepository.findByTypeAndSideInStateOrderByPriceAscAndCreatedAtDesc(
+                when(mockOrderRepository.findByTypeAndSideAndStateInOrderByPriceAscCreatedAtDesc(
                         OrderType.LIMIT.getType(),
                         OrderSide.ASK.getSide(),
                         List.of(OrderStatus.OPENED.getValue(), OrderStatus.PROCESSING.getValue())))
                         .thenReturn(List.of(order1, order2, order3));
 
 
-                assertThrows(InsufficientMaker.class, () -> {
-                    subject.order(234, OrderSide.BID.getSide(), OrderType.MARKET.getType(), 0, 601, 456);
-                });
+                assertThrows(InsufficientMaker.class, () -> subject.order(234, OrderSide.BID.getSide(), OrderType.MARKET.getType(), 0, 601, 456));
             }
         }
 
@@ -181,8 +173,6 @@ class OrderServiceTest {
             void setUp() {
                 order1 = Order.builder()
                         .id(123L)
-                        .currency(234)
-                        .user(456)
                         .side(OrderSide.BID.getSide())
                         .type(OrderType.LIMIT.getType())
                         .price(456)
@@ -195,8 +185,6 @@ class OrderServiceTest {
 
                 order2 = Order.builder()
                         .id(234L)
-                        .currency(234)
-                        .user(456)
                         .side(OrderSide.BID.getSide())
                         .type(OrderType.LIMIT.getType())
                         .price(345)
@@ -209,8 +197,6 @@ class OrderServiceTest {
 
                 order3 = Order.builder()
                         .id(345L)
-                        .currency(234)
-                        .user(456)
                         .side(OrderSide.BID.getSide())
                         .type(OrderType.LIMIT.getType())
                         .price(234)
@@ -225,7 +211,7 @@ class OrderServiceTest {
             @DisplayName("should trade with limit order")
             @Test
             void shouldTradeWithLimitOrder1() {
-                when(mockOrderRepository.findByTypeAndSideInStateOrderByPriceAscAndCreatedAtDesc(
+                when(mockOrderRepository.findByTypeAndSideAndStateInOrderByPriceAscCreatedAtDesc(
                         OrderType.LIMIT.getType(),
                         OrderSide.BID.getSide(),
                         List.of(OrderStatus.OPENED.getValue(), OrderStatus.PROCESSING.getValue())))
@@ -251,7 +237,7 @@ class OrderServiceTest {
             @DisplayName("should trade with limit order")
             @Test
             void shouldTradeWithLimitOrder2() {
-                when(mockOrderRepository.findByTypeAndSideInStateOrderByPriceAscAndCreatedAtDesc(
+                when(mockOrderRepository.findByTypeAndSideAndStateInOrderByPriceAscCreatedAtDesc(
                         OrderType.LIMIT.getType(),
                         OrderSide.BID.getSide(),
                         List.of(OrderStatus.OPENED.getValue(), OrderStatus.PROCESSING.getValue())))
@@ -282,16 +268,14 @@ class OrderServiceTest {
             @DisplayName("when there are not enough maker, should make error")
             @Test
             void whenThereAreNotEnoughMakerShouldMakeError() {
-                when(mockOrderRepository.findByTypeAndSideInStateOrderByPriceAscAndCreatedAtDesc(
+                when(mockOrderRepository.findByTypeAndSideAndStateInOrderByPriceAscCreatedAtDesc(
                         OrderType.LIMIT.getType(),
                         OrderSide.BID.getSide(),
                         List.of(OrderStatus.OPENED.getValue(), OrderStatus.PROCESSING.getValue())))
                         .thenReturn(List.of(order1, order2, order3));
 
 
-                assertThrows(InsufficientMaker.class, () -> {
-                    subject.order(234, OrderSide.ASK.getSide(), OrderType.MARKET.getType(), 0, 601, 456);
-                });
+                assertThrows(InsufficientMaker.class, () -> subject.order(234, OrderSide.ASK.getSide(), OrderType.MARKET.getType(), 0, 601, 456));
             }
         }
 

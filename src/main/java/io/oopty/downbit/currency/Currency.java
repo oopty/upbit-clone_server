@@ -4,14 +4,13 @@ import lombok.*;
 
 import javax.persistence.*;
 
-@Entity
-@Table(schema = "currency")
+@Entity(name = "currency")
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @ToString
 @Getter
-public class Currency {
+public class Currency{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;

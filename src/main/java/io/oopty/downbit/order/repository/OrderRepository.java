@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface OrderRepository extends CrudRepository<Order, Long> {
-    List<Order> findByTypeAndSideInStateOrderByPriceAscAndCreatedAtDesc(String type, String side, List<String> states);
+    List<Order> findByTypeAndSideAndStateInOrderByPriceAscCreatedAtDesc(String type, String side, List<String> states);
 }

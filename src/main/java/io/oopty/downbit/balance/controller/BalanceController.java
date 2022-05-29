@@ -1,7 +1,6 @@
 package io.oopty.downbit.balance.controller;
 
 import io.oopty.downbit.balance.BalanceService;
-import io.oopty.downbit.balance.controller.CurrencyResponse;
 import io.oopty.downbit.currency.CurrencyService;
 import io.oopty.downbit.currency.CurrencyVO;
 import lombok.RequiredArgsConstructor;

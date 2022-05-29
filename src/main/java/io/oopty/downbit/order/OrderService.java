@@ -1,5 +1,6 @@
 package io.oopty.downbit.order;
 
+import io.oopty.downbit.currency.Currency;
 import io.oopty.downbit.order.constant.OrderSide;
 import io.oopty.downbit.order.constant.OrderStatus;
 import io.oopty.downbit.order.constant.OrderType;
@@ -9,7 +10,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.security.InvalidParameterException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -25,8 +25,6 @@ public class OrderService {
     public OrderVO order(int currencyId, String side, String orderType, double price, double volume, int userId) {
         OrderVO result = OrderVO.OrderVOBuilder().build();
         Order orderDao = Order.builder()
-                .currency(currencyId)
-                .user(userId)
                 .side(side)
                 .type(orderType)
                 .price(price)
@@ -37,7 +35,7 @@ public class OrderService {
                 .remainingVolume(volume)
                 .build();
         if (orderType.equals(OrderType.MARKET.getType())) {
-            List<Order> orders = orderRepository.findByTypeAndSideInStateOrderByPriceAscAndCreatedAtDesc(
+            List<Order> orders = orderRepository.findByTypeAndSideAndStateInOrderByPriceAscCreatedAtDesc(
                     OrderType.LIMIT.getType(),
                     side.equals(OrderSide.BID.getSide()) ? OrderSide.ASK.getSide() : OrderSide.BID.getSide(),
                     List.of(OrderStatus.OPENED.getValue(),
